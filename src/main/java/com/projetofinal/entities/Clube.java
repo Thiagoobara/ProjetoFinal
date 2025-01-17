@@ -10,9 +10,11 @@ import lombok.Data;
 
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @Entity
-public class Clube {
+public class  Clube {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
@@ -31,5 +33,11 @@ public class Clube {
     @NotNull(message = "Status nao pode ser nulo.")
     @Valid
     private Boolean ativo;
+
+    @OneToMany(mappedBy = "clube1",cascade = CascadeType.ALL)
+    private List<Partida> partidasClube1;
+
+    @OneToMany(mappedBy = "clube2", cascade = CascadeType.ALL)
+    private List<Partida> partidasClube2;
 
 }
