@@ -15,6 +15,11 @@ public class ClubeController {
     public ClubeController(ClubeService clubeService) {
         this.clubeService = clubeService;
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Clube> buscarClube(@PathVariable Long id) {
+        Clube clube = clubeService.findById(id);
+        return new ResponseEntity<>(clube, HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity<Clube> criarClube(@Valid @RequestBody Clube clube) {
