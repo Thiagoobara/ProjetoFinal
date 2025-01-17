@@ -1,10 +1,10 @@
 package com.projetofinal.services;
+import com.projetofinal.exceptions.ClubeAlreadyExistsException;
+import com.projetofinal.exceptions.ClubeNotFoundException;
+
 
 import com.projetofinal.entities.Clube;
 import com.projetofinal.repositories.ClubeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,25 +12,36 @@ import java.util.Optional;
 
 @Service
 public class ClubeService {
-    final ClubeRepository clubeRepository;
+    private final ClubeRepository clubeRepository;
 
     public ClubeService(ClubeRepository clubeRepository) {
         this.clubeRepository = clubeRepository;
     }
 
-    public ResponseEntity<?> salvarClube(Clube clube){
+    public Clube salvarClube(Clube clube) {
         List<Clube> clubes = clubeRepository.findByNome(clube.getNome());
-        clube.getNome();
-        if(!clubes.isEmpty()){
-            return new ResponseEntity<>("Ja existe clube com o nome " + clube.getNome(), HttpStatus.CONFLICT);
+        if (!clubes.isEmpty()) {
+            throw new ClubeAlreadyExistsException(clube.getNome()); //
         }
-        return new ResponseEntity<>(clubeRepository.save(clube), HttpStatus.CREATED);
+        return clubeRepository.save(clube);
     }
-    public ResponseEntity<?> editarClube(Clube clube) {
-        Optional<Clube> clubeRetorno = clubeRepository.findById(clube.getId());
-        if(!clubeRetorno.isPresent()){
-            return new ResponseEntity<>("O clube não existe " , HttpStatus.BAD_REQUEST);
-        }
-         return new ResponseEntity<>(clubeRepository.save(clube), HttpStatus.OK);
+
+    public Clube editarClube(Long id, Clube clube) {
+        Clube clubeExistente = clubeRepository.findById(id)
+                .orElseThrow(() -> new ClubeNotFoundException(id));
+
+        clubeExistente.setNome(clube.getNome());
+        clubeExistente.setEstado(clube.getEstado());
+        clubeExistente.setDataCriacao(clube.getDataCriacao());
+        clubeExistente.setAtivo(clube.getAtivo());
+
+        return clubeRepository.save(clubeExistente);
+    }
+
+    public void inativarClube(Long id) {
+        Clube clubeRetorno = clubeRepository.findById(id)
+                .orElseThrow(() -> new ClubeNotFoundException(id));
+        clubeRetorno.setAtivo(false);
+        clubeRepository.save(clubeRetorno);
     }
 }

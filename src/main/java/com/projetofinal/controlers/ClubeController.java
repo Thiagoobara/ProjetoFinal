@@ -1,4 +1,4 @@
-package com.projetofinal.controlers;
+package com.projetofinal.controllers;
 
 import com.projetofinal.entities.Clube;
 import com.projetofinal.services.ClubeService;
@@ -6,12 +6,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.projetofinal.repositories.ClubeRepository;
 
 @RestController
-@RequestMapping("/clube")
+@RequestMapping("/clubes")
 public class ClubeController {
-
     private final ClubeService clubeService;
 
     public ClubeController(ClubeService clubeService) {
@@ -19,13 +17,21 @@ public class ClubeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> postClube(@RequestBody @Valid   Clube clube) {
-        return clubeService.salvarClube(clube);
+    public ResponseEntity<Clube> criarClube(@Valid @RequestBody Clube clube) {
+        Clube novoClube = clubeService.salvarClube(clube);
+        return new ResponseEntity<>(novoClube, HttpStatus.CREATED);
     }
 
-    @PutMapping
-    public ResponseEntity<?> putClube(@RequestBody @Valid Clube clube) {
-        return clubeService.editarClube(clube);
+    @PutMapping("/{id}")
+    public ResponseEntity<Clube> atualizarClube(@PathVariable Long id, @Valid @RequestBody Clube clube) {
+        Clube clubeAtualizado = clubeService.editarClube(id, clube);
+        return new ResponseEntity<>(clubeAtualizado, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> inativarClube(@PathVariable Long id) {
+        clubeService.inativarClube(id);
+        return new ResponseEntity<>("Clube inativado com sucesso", HttpStatus.OK);
     }
 
 }
